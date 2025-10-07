@@ -6,6 +6,7 @@ public class VendingMachineState
 {
     public List<Product> Products { get; set; } = new List<Product>();
     public decimal CurrentBalance { get; set; }
+    public decimal TotalIncome { get; set; }
     public List<decimal> CoinStack { get; set; } = new List<decimal>();
     
     public VendingMachineState()
@@ -48,7 +49,11 @@ public class SimpleVendingMachine : VendingMachineBase
             Console.WriteLine($"--- {product.Id} --- {product.Name} --- {product.Price} руб. --- {product.Quantity} шт. ---");
         }
         Console.WriteLine($"Ваш текущий баланс: {State.CurrentBalance} руб.");
-        Console.WriteLine("Чтобы пополнить баланс, введите номинал монеты. Когда закончите, введите 'finish'");
+        Console.WriteLine("Команды:");
+        Console.WriteLine("- Введите номинал монеты (1, 2, 5, 10) чтобы пополнить баланс");
+        Console.WriteLine("- Введите 'finish' чтобы завершить пополнение");
+        Console.WriteLine("- Введите 'AdminMode' для входа в режим администратора");
+        Console.WriteLine("- Введите 'cancel' для отмены операции и возврата денег");
     }
 
     public void AddCoin(decimal coin)
@@ -89,6 +94,7 @@ public class SimpleVendingMachine : VendingMachineBase
         if (State.CurrentBalance >= product.Price)
         {
             State.CurrentBalance -= product.Price;
+            State.TotalIncome += product.Price;
             product.Quantity--;
             Console.WriteLine("Поздравляем! Товар успешно приобретен");
             Console.WriteLine($"Ваш текущий баланс: {State.CurrentBalance} руб.");
@@ -146,6 +152,190 @@ public class SimpleVendingMachine : VendingMachineBase
             State.CoinStack.Clear();
         }
     }
+
+    public bool AdminMode()
+    {
+        Console.Write("Введите пароль: ");
+        string? password = Console.ReadLine();
+        
+        if (password != "1234")
+        {
+            Console.WriteLine("Неверный пароль!");
+            return false;
+        }
+
+        Console.WriteLine("Добро пожаловать в администраторский режим!");
+        
+        while (true)
+        {
+            Console.WriteLine("\n--- АДМИНИСТРАТОРСКИЙ РЕЖИМ ---");
+            Console.WriteLine($"Общая выручка: {State.TotalIncome} руб.");
+            Console.WriteLine("1 - Собрать средства");
+            Console.WriteLine("2 - Пополнить ассортимент");
+            Console.WriteLine("3 - Выйти из режима администратора");
+            Console.Write("Выберите действие: ");
+            
+            string? choice = Console.ReadLine();
+            
+            switch (choice)
+            {
+                case "1":
+                    CollectMoney();
+                    return true; // Завершаем работу программы
+                case "2":
+                    RestockProducts();
+                    break;
+                case "3":
+                    Console.WriteLine("Выход из администраторского режима");
+                    return false;
+                default:
+                    Console.WriteLine("Неверная команда!");
+                    break;
+            }
+        }
+    }
+
+    private void CollectMoney()
+    {
+        decimal amountToCollect = State.TotalIncome;
+        
+        if (amountToCollect <= 0)
+        {
+            Console.WriteLine("Нет средств для сбора");
+            return;
+        }
+        
+        Console.WriteLine($"\nСбор средств: {amountToCollect} руб.");
+        
+        decimal[] coins = { 10, 5, 2, 1 };
+        var collection = new Dictionary<decimal, int>();
+        
+        decimal remainingAmount = amountToCollect;
+        foreach (decimal coin in coins)
+        {
+            if (remainingAmount >= coin)
+            {
+                int count = (int)(remainingAmount / coin);
+                collection[coin] = count;
+                remainingAmount -= count * coin;
+            }
+        }
+        
+        Console.WriteLine("Собранные средства:");
+        foreach (var coin in collection)
+        {
+            Console.WriteLine($"  {coin.Key} руб. × {coin.Value} шт.");
+        }
+        
+        State.TotalIncome = 0;
+        State.CoinStack.Clear();
+        Console.WriteLine("Все средства собраны. Программа завершает работу.");
+    }
+
+    private void RestockProducts()
+    {
+        Console.WriteLine("\n--- ПОПОЛНЕНИЕ АССОРТИМЕНТА ---");
+        
+        while (true)
+        {
+            Console.WriteLine("\nТекущий ассортимент:");
+            foreach (var product in State.Products)
+            {
+                Console.WriteLine($"--- {product.Id} --- {product.Name} --- {product.Price} руб. --- {product.Quantity} шт. ---");
+            }
+            
+            Console.WriteLine("\n1 - Добавить новый товар");
+            Console.WriteLine("2 - Пополнить существующий товар");
+            Console.WriteLine("3 - Вернуться в меню администратора");
+            Console.Write("Выберите действие: ");
+            
+            string? choice = Console.ReadLine();
+            
+            switch (choice)
+            {
+                case "1":
+                    AddNewProduct();
+                    break;
+                case "2":
+                    RestockExistingProduct();
+                    break;
+                case "3":
+                    return;
+                default:
+                    Console.WriteLine("Неверная команда!");
+                    break;
+            }
+        }
+    }
+
+    private void AddNewProduct()
+    {
+        Console.Write("Введите ID нового товара: ");
+        if (!int.TryParse(Console.ReadLine(), out int id))
+        {
+            Console.WriteLine("Неверный формат ID!");
+            return;
+        }
+
+        if (State.Products.Any(p => p.Id == id))
+        {
+            Console.WriteLine("Товар с таким ID уже существует!");
+            return;
+        }
+
+        Console.Write("Введите название товара: ");
+        string? name = Console.ReadLine();
+        if (string.IsNullOrEmpty(name))
+        {
+            Console.WriteLine("Название не может быть пустым!");
+            return;
+        }
+
+        Console.Write("Введите цену товара: ");
+        if (!decimal.TryParse(Console.ReadLine(), out decimal price))
+        {
+            Console.WriteLine("Неверный формат цены!");
+            return;
+        }
+
+        Console.Write("Введите количество товара: ");
+        if (!int.TryParse(Console.ReadLine(), out int quantity))
+        {
+            Console.WriteLine("Неверный формат количества!");
+            return;
+        }
+
+        State.Products.Add(new Product { Id = id, Name = name, Price = price, Quantity = quantity });
+        Console.WriteLine("Товар успешно добавлен!");
+    }
+
+    private void RestockExistingProduct()
+    {
+        Console.Write("Введите ID товара для пополнения: ");
+        if (!int.TryParse(Console.ReadLine(), out int id))
+        {
+            Console.WriteLine("Неверный формат ID!");
+            return;
+        }
+
+        var product = State.Products.FirstOrDefault(p => p.Id == id);
+        if (product == null)
+        {
+            Console.WriteLine("Товар не найден!");
+            return;
+        }
+
+        Console.Write($"Текущее количество {product.Name}: {product.Quantity} шт.");
+        Console.Write("Введите количество для добавления: ");
+        if (!int.TryParse(Console.ReadLine(), out int quantity) || quantity <= 0)
+        {
+            Console.WriteLine("Неверный формат количества!");
+            return;
+        }
+
+        product.Quantity += quantity;
+        Console.WriteLine($"Товар успешно пополнен. Новое количество: {product.Quantity} шт.");
+    }
 }
 
 public class Program
@@ -167,10 +357,19 @@ public class Program
                 if (input == "finish" || input == "Finish") 
                     break;
                 
+                if (input == "AdminMode" || input == "adminmode")
+                {
+                    if (machine.AdminMode())
+                    {
+                        return; // Завершаем программу если администратор собрал средства
+                    }
+                    break; // Выходим из цикла ввода монет и показываем товары заново
+                }
+                
                 if (input != null && decimal.TryParse(input, out decimal coin))
                     machine.AddCoin(coin);
                 else
-                    Console.WriteLine("Неверный формат монеты");
+                    Console.WriteLine("Неверная команда или формат монеты");
             }
 
             Console.WriteLine("Введите ID товара. Для отмены операции введите 'cancel'");
