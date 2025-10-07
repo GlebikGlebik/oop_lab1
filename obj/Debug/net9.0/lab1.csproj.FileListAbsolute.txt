@@ -1,0 +1,14 @@
+C:\Gleb\labs\OOP\oop_labs\lab1\bin\Debug\net9.0\lab1.exe
+C:\Gleb\labs\OOP\oop_labs\lab1\bin\Debug\net9.0\lab1.deps.json
+C:\Gleb\labs\OOP\oop_labs\lab1\bin\Debug\net9.0\lab1.runtimeconfig.json
+C:\Gleb\labs\OOP\oop_labs\lab1\bin\Debug\net9.0\lab1.dll
+C:\Gleb\labs\OOP\oop_labs\lab1\bin\Debug\net9.0\lab1.pdb
+C:\Gleb\labs\OOP\oop_labs\lab1\obj\Debug\net9.0\lab1.GeneratedMSBuildEditorConfig.editorconfig
+C:\Gleb\labs\OOP\oop_labs\lab1\obj\Debug\net9.0\lab1.AssemblyInfoInputs.cache
+C:\Gleb\labs\OOP\oop_labs\lab1\obj\Debug\net9.0\lab1.AssemblyInfo.cs
+C:\Gleb\labs\OOP\oop_labs\lab1\obj\Debug\net9.0\lab1.csproj.CoreCompileInputs.cache
+C:\Gleb\labs\OOP\oop_labs\lab1\obj\Debug\net9.0\lab1.dll
+C:\Gleb\labs\OOP\oop_labs\lab1\obj\Debug\net9.0\refint\lab1.dll
+C:\Gleb\labs\OOP\oop_labs\lab1\obj\Debug\net9.0\lab1.pdb
+C:\Gleb\labs\OOP\oop_labs\lab1\obj\Debug\net9.0\lab1.genruntimeconfig.cache
+C:\Gleb\labs\OOP\oop_labs\lab1\obj\Debug\net9.0\ref\lab1.dll
